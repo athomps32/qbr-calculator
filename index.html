@@ -1,319 +1,569 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-12" />
+  <meta charset="UTF-8" />
   <title>QBR Prep Cost & Sturdy Savings Calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
+
     body {
       margin: 0;
-      padding: 1.5rem;
+      min-height: 100vh;
       background: #0f172a;
       color: #e5e7eb;
-      display: flex;
-      justify-content: center;
     }
+
+    /* Full-screen container */
     .app {
+      min-height: 100vh;
       width: 100%;
-      max-width: 640px;
+      padding: 2.5rem 3rem;
+      box-sizing: border-box;
       background: #020617;
-      border-radius: 18px;
-      padding: 1.75rem 1.75rem 2.25rem;
-      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.7);
-      border: 1px solid rgba(148, 163, 184, 0.35);
     }
+
+    /* Wide but readable content */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
     h1 {
-      font-size: 1.6rem;
+      font-size: 2rem;
       margin: 0 0 0.25rem;
+      letter-spacing: -0.02em;
     }
+
     .subtitle {
-      margin-bottom: 1.5rem;
+      margin: 0 0 1.5rem;
       color: #9ca3af;
-      font-size: 0.95rem;
+      font-size: 1rem;
+      line-height: 1.4;
+      max-width: 70ch;
     }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    /* On larger screens, inputs on left, results on right */
+    @media (min-width: 1024px) {
+      .layout {
+        grid-template-columns: 1.25fr 0.75fr;
+        align-items: start;
+      }
+      .resultsPanel {
+        position: sticky;
+        top: 1.25rem;
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, #1e293b, #020617);
+      border-radius: 16px;
+      padding: 1.15rem 1.15rem 1.25rem;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.4);
+    }
+
+    .card h2 {
+      font-size: 0.9rem;
+      margin: 0 0 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9ca3af;
+    }
+
     label {
       display: block;
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       margin-bottom: 0.35rem;
       color: #9ca3af;
     }
+
     input[type="number"] {
       width: 100%;
       box-sizing: border-box;
-      padding: 0.45rem 0.6rem;
-      border-radius: 8px;
+      padding: 0.5rem 0.65rem;
+      border-radius: 10px;
       border: 1px solid #4b5563;
       background: #020617;
       color: #e5e7eb;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
     }
+
     input[type="number"]:focus {
       outline: none;
       border-color: #38bdf8;
-      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.45);
     }
-    .grid {
+
+    .grid3 {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: 0.9rem;
     }
-    .card {
-      background: radial-gradient(circle at top left, #1e293b, #020617);
-      border-radius: 14px;
-      padding: 1rem 1rem 1.1rem;
-      border: 1px solid rgba(148, 163, 184, 0.3);
+    @media (min-width: 720px) {
+      .grid3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
-    .card h2 {
-      font-size: 0.95rem;
-      margin: 0 0 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: #9ca3af;
-    }
-    .row {
+
+    .grid2 {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.75rem;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: 0.9rem;
     }
+    @media (min-width: 720px) {
+      .grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
     .pill {
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      font-size: 0.8rem;
-      padding: 0.25rem 0.6rem;
+      font-size: 0.82rem;
+      padding: 0.28rem 0.7rem;
       border-radius: 999px;
       background: rgba(56, 189, 248, 0.1);
       color: #7dd3fc;
-      margin-top: 0.4rem;
+      border: 1px solid rgba(56, 189, 248, 0.18);
     }
-    .pill strong {
-      color: #e5e7eb;
+
+    .pill strong { color: #e5e7eb; }
+
+    .pill.good {
+      background: rgba(34, 197, 94, 0.14);
+      color: #bbf7d0;
+      border: 1px solid rgba(34, 197, 94, 0.2);
     }
-    .results {
-      margin-top: 0.75rem;
-      font-size: 0.92rem;
-      line-height: 1.5;
-    }
-    .results p {
-      margin: 0.3rem 0;
-    }
-    .results strong {
-      color: #fbbf24;
-    }
+
     .hint {
-      margin-top: 0.6rem;
-      font-size: 0.8rem;
+      margin-top: 0.7rem;
+      font-size: 0.85rem;
       color: #9ca3af;
+      line-height: 1.4;
     }
+
     .buttons {
       margin-top: 1rem;
       display: flex;
       flex-wrap: wrap;
       gap: 0.6rem;
     }
+
     button {
       border: none;
       border-radius: 999px;
-      padding: 0.5rem 1.1rem;
-      font-size: 0.9rem;
+      padding: 0.55rem 1.15rem;
+      font-size: 0.95rem;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
-      transition: transform 0.05s ease, box-shadow 0.1s ease, background 0.1s ease;
+      gap: 0.4rem;
+      transition: transform 0.06s ease, box-shadow 0.1s ease, background 0.1s ease;
+      user-select: none;
     }
+
     button.primary {
       background: linear-gradient(135deg, #38bdf8, #0ea5e9);
       color: #0b1120;
-      box-shadow: 0 10px 25px rgba(56, 189, 248, 0.4);
+      box-shadow: 0 12px 26px rgba(56, 189, 248, 0.32);
     }
+
     button.secondary {
-      background: rgba(148, 163, 184, 0.16);
+      background: rgba(148, 163, 184, 0.14);
       color: #e5e7eb;
-      border: 1px solid rgba(148, 163, 184, 0.4);
+      border: 1px solid rgba(148, 163, 184, 0.35);
     }
+
     button:hover {
       transform: translateY(-1px);
-      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.7);
+      box-shadow: 0 16px 34px rgba(15, 23, 42, 0.55);
     }
+
     button:active {
       transform: translateY(0);
       box-shadow: none;
     }
+
     .status {
-      margin-top: 0.5rem;
-      font-size: 0.8rem;
+      margin-top: 0.6rem;
+      font-size: 0.85rem;
       color: #a5b4fc;
-      min-height: 1em;
+      min-height: 1.25em;
     }
-    @media (max-width: 640px) {
-      body { padding: 0.75rem; }
+
+    .results {
+      margin-top: 0.25rem;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+    .results p { margin: 0.35rem 0; }
+    .results strong { color: #fbbf24; }
+
+    .resultsSmall {
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      color: #9ca3af;
+      line-height: 1.4;
+    }
+
+    .kpi {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    .kpiBox {
+      border-radius: 14px;
+      padding: 0.85rem 0.9rem;
+      background: rgba(2, 6, 23, 0.55);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+    }
+
+    .kpiLabel {
+      font-size: 0.78rem;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.35rem;
+    }
+
+    .kpiValue {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .kpiValue.savings { color: #34d399; }
+    .kpiValue.cost { color: #fbbf24; }
+
+    @media (max-width: 680px) {
       .app { padding: 1.25rem 1.1rem 1.6rem; }
+      h1 { font-size: 1.6rem; }
     }
   </style>
 </head>
+
 <body>
   <div class="app">
-    <h1>QBR Prep Cost & Sturdy Savings Calculator</h1>
-    <p class="subtitle">
-      Plug in your numbers to see how much manual QBR prep costs your team —
-      and how much you save when Sturdy does the prep in seconds.
-    </p>
-
-    <div class="card">
-      <h2>Team & Volume</h2>
-      <div class="grid">
-        <div>
-          <label for="salary">Average CSM Salary </label>
-          <input id="salary" type="number" value="90000" min="0" step="1000" />
-        </div>
-        <div>
-          <label for="csms">Number of CSMs</label>
-          <input id="csms" type="number" value="25" min="1" step="1" />
-        </div>
-        <div>
-          <label for="qbrsPerCsm">QBRs per CSM per Year</label>
-          <input id="qbrsPerCsm" type="number" value="30" min="1" step="1" />
-        </div>
-      </div>
-      <div class="pill">
-        Hourly rate (auto-calculated): <strong id="hourlyRateDisplay">$0</strong>
-      </div>
-      <div class="pill" style="background:rgba(34,197,94,0.16); color:#bbf7d0;">
-        Total QBRs per year: <strong id="totalQbrsDisplay">0</strong>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:1rem;">
-      <h2>Prep Time</h2>
-      <div class="row">
-        <div>
-          <label for="hoursManual">Current prep time per QBR (hours)</label>
-          <input id="hoursManual" type="number" value="5" min="0" step="0.25" />
-        </div>
-        <div>
-          <label for="hoursSturdy">Prep time with Sturdy (hours)</label>
-          <input id="hoursSturdy" type="number" value="0.1" min="0" step="0.05" />
-        </div>
-      </div>
-      <p class="hint">
-        Example: 5 hours of manual prep vs 0.1 hours (~6 minutes) with Sturdy.
+    <div class="container">
+      <h1>QBR Prep Cost & Sturdy Savings Calculator</h1>
+      <p class="subtitle">
+        Plug in your team and volume to estimate annual QBR prep spend — then see savings when Sturdy reduces prep to seconds.
       </p>
 
-      <div class="buttons">
-        <button class="primary" id="calcBtn">⚡ Calculate</button>
-        <button class="secondary" id="shareBtn">📤 Share your results</button>
+      <div class="layout">
+        <!-- LEFT: Inputs -->
+        <div>
+          <div class="card">
+            <h2>Team & Volume</h2>
+
+            <div class="grid3">
+              <div>
+                <label for="salary">Average CSM Salary (annual, USD)</label>
+                <input id="salary" type="number" min="0" step="1000" value="88658" />
+              </div>
+              <div>
+                <label for="csms">Number of CSMs</label>
+                <input id="csms" type="number" min="1" step="1" value="25" />
+              </div>
+              <div>
+                <label for="qbrsPerCsm">QBRs per CSM per year</label>
+                <input id="qbrsPerCsm" type="number" min="1" step="1" value="30" />
+              </div>
+            </div>
+
+            <div class="pills">
+              <div class="pill">Hourly rate: <strong id="hourlyRateDisplay">$0</strong></div>
+              <div class="pill good">Total QBRs/year: <strong id="totalQbrsDisplay">0</strong></div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:1rem;">
+            <h2>Prep Time Assumptions</h2>
+
+            <div class="grid2">
+              <div>
+                <label for="hoursManual">Current prep time per QBR (hours)</label>
+                <input id="hoursManual" type="number" min="0" step="0.25" value="5" />
+              </div>
+              <div>
+                <label for="hoursSturdy">Prep time with Sturdy (hours)</label>
+                <input id="hoursSturdy" type="number" min="0" step="0.05" value="0.1" />
+              </div>
+            </div>
+
+            <p class="hint">
+              Example: 5 hours manual prep vs 0.10 hours (~6 minutes) with Sturdy. We assume 2,080 work hours/year.
+            </p>
+
+            <div class="buttons">
+              <button class="primary" id="calcBtn" type="button">⚡ Calculate</button>
+              <button class="secondary" id="shareBtn" type="button">📤 Share your results</button>
+            </div>
+
+            <div class="status" id="statusMsg"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Results -->
+        <div class="resultsPanel">
+          <div class="card">
+            <h2>Results</h2>
+
+            <div class="kpi">
+              <div class="kpiBox">
+                <div class="kpiLabel">Annual cost (manual)</div>
+                <div class="kpiValue cost" id="annualManualKpi">$0</div>
+              </div>
+
+              <div class="kpiBox">
+                <div class="kpiLabel">Annual cost (with Sturdy)</div>
+                <div class="kpiValue" id="annualSturdyKpi">$0</div>
+              </div>
+
+              <div class="kpiBox">
+                <div class="kpiLabel">Annual savings</div>
+                <div class="kpiValue savings" id="annualSavingsKpi">$0</div>
+              </div>
+            </div>
+
+            <div class="results" id="resultsText">
+              <p>Click <strong>Calculate</strong> to see results.</p>
+            </div>
+
+            <div class="resultsSmall">
+              This estimates cost based on salary time only (not including managers, AEs, meeting time, or opportunity cost).
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="results" id="results">
-        <!-- Filled by JS -->
-      </div>
-      <div class="status" id="statusMsg"></div>
+      <!-- Rewritten JS below -->
+      <script>
+        (() => {
+          // ---------- Helpers ----------
+          const $ = (id) => document.getElementById(id);
+
+          const money0 = new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+            maximumFractionDigits: 0
+          });
+
+          const money2 = new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          });
+
+          function toNumber(value, fallback = 0) {
+            const n = Number.parseFloat(value);
+            return Number.isFinite(n) ? n : fallback;
+          }
+
+          function safeInt(value, fallback = 0) {
+            const n = Number.parseInt(value, 10);
+            return Number.isFinite(n) ? n : fallback;
+          }
+
+          function formatInt(n) {
+            return n.toLocaleString("en-US");
+          }
+
+          // ---------- Core model ----------
+          function compute({
+            salary,
+            csms,
+            qbrsPerCsm,
+            hoursManual,
+            hoursSturdy
+          }) {
+            const WORK_HOURS_PER_YEAR = 2080;
+
+            const hourlyRate = salary / WORK_HOURS_PER_YEAR;
+            const totalQbrs = csms * qbrsPerCsm;
+
+            const annualManual = hourlyRate * hoursManual * totalQbrs;
+            const annualSturdy = hourlyRate * hoursSturdy * totalQbrs;
+            const annualSavings = annualManual - annualSturdy;
+
+            return {
+              hourlyRate,
+              totalQbrs,
+              annualManual,
+              annualSturdy,
+              annualSavings
+            };
+          }
+
+          // ---------- UI state ----------
+          let lastShareText = "";
+
+          function readInputs() {
+            return {
+              salary: toNumber($("salary").value, 0),
+              csms: safeInt($("csms").value, 0),
+              qbrsPerCsm: safeInt($("qbrsPerCsm").value, 0),
+              hoursManual: toNumber($("hoursManual").value, 0),
+              hoursSturdy: toNumber($("hoursSturdy").value, 0)
+            };
+          }
+
+          function validate(inputs) {
+            const errors = [];
+
+            if (inputs.salary <= 0) errors.push("Enter a salary > 0.");
+            if (inputs.csms <= 0) errors.push("Enter number of CSMs > 0.");
+            if (inputs.qbrsPerCsm <= 0) errors.push("Enter QBRs per CSM per year > 0.");
+            if (inputs.hoursManual < 0) errors.push("Manual prep hours must be ≥ 0.");
+            if (inputs.hoursSturdy < 0) errors.push("Sturdy prep hours must be ≥ 0.");
+
+            return errors;
+          }
+
+          function setStatus(msg) {
+            $("statusMsg").textContent = msg || "";
+          }
+
+          function render(inputs, out) {
+            // Pills
+            $("hourlyRateDisplay").textContent = money2.format(out.hourlyRate);
+            $("totalQbrsDisplay").textContent = formatInt(out.totalQbrs);
+
+            // KPIs
+            $("annualManualKpi").textContent = money0.format(out.annualManual);
+            $("annualSturdyKpi").textContent = money0.format(out.annualSturdy);
+            $("annualSavingsKpi").textContent = money0.format(out.annualSavings);
+
+            // Narrative
+            const perQbrManual = out.hourlyRate * inputs.hoursManual;
+            const perQbrSturdy = out.hourlyRate * inputs.hoursSturdy;
+
+            $("resultsText").innerHTML = `
+              <p>
+                With <strong>${inputs.csms}</strong> CSMs delivering <strong>${formatInt(out.totalQbrs)}</strong> QBRs/year:
+              </p>
+              <p>
+                Manual prep (${inputs.hoursManual.toFixed(2)} h/QBR) costs about
+                <strong>${money0.format(out.annualManual)}</strong> annually
+                (~${money2.format(perQbrManual)} per QBR).
+              </p>
+              <p>
+                With Sturdy (${inputs.hoursSturdy.toFixed(2)} h/QBR), prep costs about
+                <strong>${money0.format(out.annualSturdy)}</strong> annually
+                (~${money2.format(perQbrSturdy)} per QBR).
+              </p>
+              <p>
+                Estimated annual savings:
+                <strong>${money0.format(out.annualSavings)}</strong>
+              </p>
+            `;
+
+            // Share text (clipboard)
+            lastShareText =
+              `QBR Prep Cost Calculator Results\n\n` +
+              `Inputs:\n` +
+              `• Avg CSM salary: ${money0.format(inputs.salary)}\n` +
+              `• # of CSMs: ${inputs.csms}\n` +
+              `• QBRs per CSM per year: ${inputs.qbrsPerCsm}\n` +
+              `• Manual prep time: ${inputs.hoursManual} hours/QBR\n` +
+              `• Prep time with Sturdy: ${inputs.hoursSturdy} hours/QBR\n\n` +
+              `Outputs:\n` +
+              `• Hourly rate (salary/2080): ${money2.format(out.hourlyRate)}\n` +
+              `• Total QBRs per year: ${formatInt(out.totalQbrs)}\n` +
+              `• Annual cost (manual): ${money0.format(out.annualManual)}\n` +
+              `• Annual cost (with Sturdy): ${money0.format(out.annualSturdy)}\n` +
+              `• Estimated annual savings: ${money0.format(out.annualSavings)}\n`;
+          }
+
+          async function share() {
+            setStatus("");
+            if (!lastShareText) {
+              setStatus("Run Calculate first, then share your results.");
+              return;
+            }
+
+            try {
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(lastShareText);
+                setStatus("✅ Copied to clipboard. Paste into email, Slack, or LinkedIn.");
+              } else {
+                // Fallback (older browsers)
+                window.prompt("Copy your results:", lastShareText);
+                setStatus("Copy the text from the prompt.");
+              }
+            } catch (err) {
+              console.error(err);
+              window.prompt("Copy your results:", lastShareText);
+              setStatus("Clipboard blocked — copy from the prompt instead.");
+            }
+          }
+
+          function onCalculate() {
+            setStatus("");
+
+            const inputs = readInputs();
+            const errors = validate(inputs);
+
+            // Update the pills even if invalid (helps user see what’s happening)
+            if (inputs.salary > 0) {
+              const hourlyRate = inputs.salary / 2080;
+              $("hourlyRateDisplay").textContent = money2.format(hourlyRate);
+            }
+
+            if (errors.length) {
+              // Reset KPIs to avoid showing stale outputs
+              $("annualManualKpi").textContent = "$0";
+              $("annualSturdyKpi").textContent = "$0";
+              $("annualSavingsKpi").textContent = "$0";
+              $("resultsText").innerHTML = `<p>${errors.join(" ")}</p>`;
+              lastShareText = "";
+              return;
+            }
+
+            const out = compute(inputs);
+            render(inputs, out);
+          }
+
+          // ---------- Wire up ----------
+          $("calcBtn").addEventListener("click", onCalculate);
+          $("shareBtn").addEventListener("click", share);
+
+          // Helpful: update the pills live as you type; results update on Calculate
+          ["salary", "csms", "qbrsPerCsm"].forEach((id) => {
+            $(id).addEventListener("input", () => {
+              const salary = toNumber($("salary").value, 0);
+              const csms = safeInt($("csms").value, 0);
+              const qbrsPerCsm = safeInt($("qbrsPerCsm").value, 0);
+
+              const hourlyRate = salary > 0 ? salary / 2080 : 0;
+              const totalQbrs = csms * qbrsPerCsm;
+
+              $("hourlyRateDisplay").textContent = money2.format(hourlyRate);
+              $("totalQbrsDisplay").textContent = formatInt(totalQbrs);
+            });
+          });
+
+          // Run once with defaults so it looks alive
+          onCalculate();
+        })();
+      </script>
     </div>
   </div>
-
-  <script>
-    const fmtMoney = new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0
-    });
-
-    function val(id, fallback = 0) {
-      const v = parseFloat(document.getElementById(id).value);
-      return isNaN(v) ? fallback : v;
-    }
-
-    let lastSummaryText = "";
-
-    function calculate() {
-      const salary = val("salary", 0);
-      const csms = val("csms", 0);
-      const qbrsPerCsm = val("qbrsPerCsm", 0);
-      const hoursManual = val("hoursManual", 0);
-      const hoursSturdy = val("hoursSturdy", 0);
-
-      const hourlyRate = salary > 0 ? salary / 2080 : 0; // 2,080 work hours/year
-      const totalQbrs = csms * qbrsPerCsm;
-
-      document.getElementById("hourlyRateDisplay").textContent =
-        fmtMoney.format(hourlyRate);
-      document.getElementById("totalQbrsDisplay").textContent =
-        totalQbrs.toLocaleString("en-US");
-
-      const results = document.getElementById("results");
-      const status = document.getElementById("statusMsg");
-      status.textContent = "";
-
-      if (!salary || !csms || !qbrsPerCsm) {
-        results.innerHTML = "<p>Enter salary, team size, and QBR volume to see costs.</p>";
-        lastSummaryText = "";
-        return;
-      }
-
-      const annualManual = hourlyRate * hoursManual * totalQbrs;
-      const annualSturdy = hourlyRate * hoursSturdy * totalQbrs;
-      const annualSavings = annualManual - annualSturdy;
-
-      results.innerHTML = `
-        <p>Annual QBR prep cost <strong>without Sturdy</strong>:
-          <strong>${fmtMoney.format(annualManual)}</strong></p>
-        <p>Annual QBR prep cost <strong>with Sturdy</strong>
-          (prep = ${hoursSturdy.toFixed(2)} h/QBR):
-          <strong>${fmtMoney.format(annualSturdy)}</strong></p>
-        <p>Estimated <strong>annual savings with Sturdy</strong>:
-          <strong>${fmtMoney.format(annualSavings)}</strong></p>
-        <p style="font-size:0.8rem; color:#9ca3af; margin-top:0.6rem;">
-          Savings are based purely on CSM time (salary) — not including managers,
-          AEs, or the opportunity cost of spending those hours on expansion and
-          renewal work instead.
-        </p>
-      `;
-
-      // Build a shareable text summary
-      lastSummaryText =
-        `QBR Prep Cost Summary with Sturdy:\n\n` +
-        `• CSMs: ${csms}\n` +
-        `• Avg salary: ${fmtMoney.format(salary)}\n` +
-        `• QBRs per CSM per year: ${qbrsPerCsm}\n` +
-        `• Manual prep: ${hoursManual} hours per QBR\n` +
-        `• Prep with Sturdy: ${hoursSturdy} hours per QBR\n\n` +
-        `Annual cost without Sturdy: ${fmtMoney.format(annualManual)}\n` +
-        `Annual cost with Sturdy: ${fmtMoney.format(annualSturdy)}\n` +
-        `Estimated annual savings using Sturdy: ${fmtMoney.format(annualSavings)}\n`;
-    }
-
-    async function shareResults() {
-      const status = document.getElementById("statusMsg");
-      if (!lastSummaryText) {
-        status.textContent = "Run the calculation first, then share your results.";
-        return;
-      }
-      try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(lastSummaryText);
-          status.textContent = "✅ Summary copied to your clipboard. Paste it into email, Slack, or LinkedIn.";
-        } else {
-          // Fallback: show in alert for manual copy
-          alert(lastSummaryText);
-          status.textContent = "Copy the summary from the dialog that just opened.";
-        }
-      } catch (e) {
-        console.error(e);
-        status.textContent = "Could not copy to clipboard, but you can copy the text from the alert.";
-        alert(lastSummaryText);
-      }
-    }
-
-    document.getElementById("calcBtn").addEventListener("click", calculate);
-    document.getElementById("shareBtn").addEventListener("click", shareResults);
-
-    // Initial calculation with defaults
-    calculate();
-  </script>
 </body>
 </html>
